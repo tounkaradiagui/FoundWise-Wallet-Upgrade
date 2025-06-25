@@ -6,10 +6,10 @@ import { sql } from './config/db.js';
 // Load environment variables from .env file
 dotenv.config();
 
-const app = express(); 
+const app = express();
 
 // Middleware
-app.use(express.json()); 
+app.use(express.json());
 app.use(cors());
 
 // Set the port from environment variable or default to 3000
@@ -56,7 +56,7 @@ app.post('/api/transactions', async (req, res) => {
       VALUES (${user_id}, ${title}, ${amount}, ${category}) RETURNING *`;
 
     console.log('Transaction created:', transaction[0]);
-    
+
     res.status(201).json(transaction[0]);
 
   } catch (error) {
@@ -95,21 +95,51 @@ app.get('/api/transactions', async (req, res) => {
 // API endpoint to delete a transaction by ID
 app.delete('/api/transactions/:id', async (req, res) => {
   try {
-    const {id} = req.params;
+    const { id } = req.params;
 
-    if(isNaN(parseInt(id))) {
-      return res.status(400).json({ message: 'ID de transaction invalide' }); 
+    if (isNaN(parseInt(id))) {
+      return res.status(400).json({ message: 'ID de transaction invalide' });
     }
     const transaction = await sql`DELETE FROM transactions WHERE id = ${id} RETURNING *`;
     if (transaction.length === 0) {
       return res.status(404).json({ message: 'Transaction non trouvée' });
-    } 
+    }
     res.status(200).json({ message: 'Transaction supprimée avec succès', transaction: transaction[0] });
   } catch (error) {
     console.log('Erreur lors de la suppression de la transaction:', error);
     res.status(500).json({ message: 'Erreur lors de la suppression de la transaction' });
   }
-}); 
+});
+
+// API endpoint to get transactions summary by user ID
+app.get('/api/transactions/summary/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Get balance for the user
+    const balanceResult = await sql`SELECT COALESCE(SUM(amount), 0) AS balance FROM transactions WHERE user_id = ${userId}`;
+
+    // Get income for the user
+    const incomeResult = await sql`SELECT COALESCE(SUM(amount), 0) AS income FROM transactions WHERE user_id = ${userId} AND amount > 0`;
+
+    // Get expenses for the user
+    const expensesResult = await sql`SELECT COALESCE(SUM(amount), 0) AS expenses FROM transactions WHERE user_id = ${userId} AND amount < 0`;
+
+    // User must have at least an income before creating an expense
+    // if (incomeResult[0].income <= 0 && expensesResult[0].expenses < 0) {
+    //   return res.status(400).json({ message: 'Vous devez d\'abord créer une entrée avant de créer une dépense' });
+
+    res.status(200).json({
+      balance: balanceResult[0].balance,
+      income: incomeResult[0].income,
+      expenses: expensesResult[0].expenses
+    });
+  } catch (error) {
+    console.log('Erreur lors de la récupération du résumé des transactions:', error);
+    res.status(500).json({ message: 'Erreur de serveur' });
+
+  }
+});
 
 // API endpoint to initialize the database and start the server
 initDB().then(() => {
