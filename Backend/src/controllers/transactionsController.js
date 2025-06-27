@@ -1,22 +1,7 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import { sql } from './config/db.js';
-
-// Load environment variables from .env file
-dotenv.config();
-
-const app = express();
-
-// Middleware
-app.use(express.json());
-app.use(cors());
-
-// Set the port from environment variable or default to 3000
-const PORT = process.env.PORT || 3000;
+import {sql} from '../config/db.js';
 
 // Initialize DB connection
-async function initDB() {
+export async function initDB() {
   try {
     await sql`CREATE TABLE IF NOT EXISTS transactions (
       id SERIAL PRIMARY KEY,
@@ -33,19 +18,8 @@ async function initDB() {
   }
 }
 
-// API endpoint to check if the backend is working
-app.use('/', (req, res, next) => {
-  console.log('Hey we hit a req, the method is : ', req.method);
-  next();
-});
-
-// API endpoint to check if the backend is working
-app.get('/', (req, res) => {
-  res.send('Backend is working ');
-});
-
 // API endpoint to create a new transaction
-app.post('/api/transactions', async (req, res) => {
+export async function createTransaction (req, res) {
   try {
     const { user_id, title, amount, category } = req.body;
     if (!user_id || !title || !amount || !category) {
@@ -63,10 +37,10 @@ app.post('/api/transactions', async (req, res) => {
     console.log('Erreur lors de la création de la transaction:', error);
     res.status(500).json({ message: 'Erreur lors de la création de la transaction' });
   }
-});
+}
 
 // API endpoint to get transactions by user ID
-app.get('/api/transactions/:userId', async (req, res) => {
+export async function getTransactionsByUserId (req, res) {
   const userId = req.params.userId;
   try {
     const transactions = await sql`SELECT * FROM transactions WHERE user_id = ${userId} ORDER BY created_at DESC`;
@@ -78,10 +52,10 @@ app.get('/api/transactions/:userId', async (req, res) => {
     console.log('Erreur lors de la récupération des transactions:', error);
     res.status(500).json({ message: 'Erreur lors de la récupération des transactions' });
   }
-});
+}
 
 // API endpoint to get all transactions
-app.get('/api/transactions', async (req, res) => {
+export async function getAllTransactions (req, res) {
   try {
     const transactions = await sql`SELECT * FROM transactions ORDER BY created_at DESC`;
     res.status(200).json(transactions);
@@ -89,11 +63,10 @@ app.get('/api/transactions', async (req, res) => {
     console.log('Erreur lors de la récupération des transactions:', error);
     res.status(500).json({ message: 'Erreur lors de la récupération des transactions' });
   }
-});
-
+}
 
 // API endpoint to delete a transaction by ID
-app.delete('/api/transactions/:id', async (req, res) => {
+export async function deleteTransactionById (req, res) {
   try {
     const { id } = req.params;
 
@@ -109,10 +82,10 @@ app.delete('/api/transactions/:id', async (req, res) => {
     console.log('Erreur lors de la suppression de la transaction:', error);
     res.status(500).json({ message: 'Erreur lors de la suppression de la transaction' });
   }
-});
+}
 
 // API endpoint to get transactions summary by user ID
-app.get('/api/transactions/summary/:userId', async (req, res) => {
+export async function getTransactionsSummaryByUserId (req, res) {
   try {
     const { userId } = req.params;
 
@@ -139,11 +112,4 @@ app.get('/api/transactions/summary/:userId', async (req, res) => {
     res.status(500).json({ message: 'Erreur de serveur' });
 
   }
-});
-
-// API endpoint to initialize the database and start the server
-initDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  });
-}); 
+}
