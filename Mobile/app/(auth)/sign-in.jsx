@@ -84,11 +84,11 @@ export default function SignIn() {
       contentContainerStyle={{ paddingBottom: 60 }}
       keyboardShouldPersistTaps="handled"
     >
+      <View style={styles.statusBarBackground} />
+      
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <StatusBar style="dark" />
-
         <Image
           source={require("@/assets/images/myOfficialLogo.png")}
           resizeMode="contain"
@@ -99,7 +99,7 @@ export default function SignIn() {
 
         <View style={styles.inputContainer}>
           <View style={styles.inputWrapper}>
-            <MaterialIcons name="email" size={22} color="#555" />
+            <MaterialIcons name="email" size={22} color="black" />
             <TextInput
               autoCapitalize="none"
               keyboardType="email-address"
@@ -115,7 +115,7 @@ export default function SignIn() {
 
         <View style={styles.inputContainer}>
           <View style={styles.inputWrapper}>
-            <MaterialIcons name="lock" size={22} color="#555" />
+            <MaterialIcons name="lock" size={22} color="black" />
             <TextInput
               value={password}
               onChangeText={setPassword}
@@ -128,7 +128,7 @@ export default function SignIn() {
               onPress={togglePasswordVisibility}
               name={showPassword ? "eye-off" : "eye"}
               size={22}
-              color="#555"
+              color="black"
               style={{ marginLeft: 10 }}
             />
           </View>
@@ -171,6 +171,10 @@ export default function SignIn() {
 }
 
 const styles = StyleSheet.create({
+  statusBarBackground: {
+    height: Platform.OS === "ios" ? 44 : StatusBar.currentHeight,
+    backgroundColor: "#078ECB",
+  },
   container: {
     flex: 1,
     backgroundColor: "#F9FAFB",
