@@ -1,66 +1,253 @@
-import { useSignIn } from '@clerk/clerk-expo'
-import { Link, useRouter } from 'expo-router'
-import { Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React from 'react'
+import { useSignIn } from "@clerk/clerk-expo";
+import { Link, useRouter } from "expo-router";
+import {
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  ActivityIndicator,
+} from "react-native";
+import { useState } from "react";
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import { StatusBar } from "expo-status-bar";
+import Divider from "@/components/Divider";
+import GoogleSignIn from "@/components/GoogleSignIn";
+import Toast from "react-native-toast-message";
 
 export default function SignIn() {
-  const { signIn, setActive, isLoaded } = useSignIn()
-  const router = useRouter()
+  const { signIn, setActive, isLoaded } = useSignIn();
+  const router = useRouter();
 
-  const [emailAddress, setEmailAddress] = React.useState('')
-  const [password, setPassword] = React.useState('')
+  const [emailAddress, setEmailAddress] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // Handle the submission of the sign-in form
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   const onSignInPress = async () => {
-    if (!isLoaded) return
+    if (!isLoaded) return;
+    setLoading(true);
 
-    // Start the sign-in process using the email and password provided
     try {
       const signInAttempt = await signIn.create({
         identifier: emailAddress,
         password,
-      })
+      });
 
-      // If sign-in process is complete, set the created session as active
-      // and redirect the user
-      if (signInAttempt.status === 'complete') {
-        await setActive({ session: signInAttempt.createdSessionId })
-        router.replace('/dashboard')
+      if (signInAttempt.status === "complete") {
+        await setActive({ session: signInAttempt.createdSessionId });
+        router.replace("/dashboard");
       } else {
-        // If the status isn't complete, check why. User might need to
-        // complete further steps.
-        console.error(JSON.stringify(signInAttempt, null, 2))
+        console.warn("Connexion incomplète", signInAttempt);
       }
     } catch (err) {
-      // See https://clerk.com/docs/custom-flows/error-handling
-      // for more info on error handling
-      console.error(JSON.stringify(err, null, 2))
+      // Traduction basique des messages d'erreur courants
+      const errorCode = err?.errors?.[0]?.code || "";
+      const message = err?.errors?.[0]?.message || "";
+
+      const translated = {
+        form_identifier_not_found: "Adresse e-mail introuvable.",
+        form_password_incorrect: "Mot de passe incorrect.",
+        form_param_format_invalid: "Format invalide dans le formulaire.",
+        form_password_pwned:
+          "Mot de passe compromis. Veuillez en choisir un autre.",
+        form_identifier_exists: "Cette adresse est déjà utilisée.",
+        form_password_too_short: "Mot de passe trop court.",
+      };
+
+      const fallback = "Une erreur s'est produite. Veuillez réessayer.";
+      const errorMessage = translated[errorCode] || fallback;
+
+      Toast.show({
+        type: "error",
+        text1: "Erreur de connexion",
+        text2: errorMessage,
+      });
+    } finally {
+      setLoading(false);
     }
-  }
+  };
+
+  const isFormValid = emailAddress.length > 3 && password.length > 3;
 
   return (
-    <View style={{ padding: 20 }}>
-      <Text>Sign in</Text>
-      <TextInput
-        autoCapitalize="none"
-        value={emailAddress}
-        placeholder="Enter email"
-        onChangeText={(emailAddress) => setEmailAddress(emailAddress)}
-      />
-      <TextInput
-        value={password}
-        placeholder="Enter password"
-        secureTextEntry={true}
-        onChangeText={(password) => setPassword(password)}
-      />
-      <TouchableOpacity onPress={onSignInPress}>
-        <Text>Continue</Text>
-      </TouchableOpacity>
-      <View style={{ display: 'flex', flexDirection: 'row', gap: 3 }}>
-        <Link href="/sign-up">
-          <Text>Sign up</Text>
-        </Link>
-      </View>
-    </View>
-  )
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={{ paddingBottom: 60 }}
+      keyboardShouldPersistTaps="handled"
+    >
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <StatusBar style="dark" />
+
+        <Image
+          source={require("@/assets/images/myOfficialLogo.png")}
+          resizeMode="contain"
+          style={styles.logo}
+        />
+
+        <Text style={styles.title}>Bienvenue 👋</Text>
+
+        <View style={styles.inputContainer}>
+          <View style={styles.inputWrapper}>
+            <MaterialIcons name="email" size={22} color="#555" />
+            <TextInput
+              autoCapitalize="none"
+              keyboardType="email-address"
+              autoComplete="email"
+              placeholder="Adresse email"
+              placeholderTextColor="#A0AEC0"
+              value={emailAddress}
+              onChangeText={setEmailAddress}
+              style={styles.textInput}
+            />
+          </View>
+        </View>
+
+        <View style={styles.inputContainer}>
+          <View style={styles.inputWrapper}>
+            <MaterialIcons name="lock" size={22} color="#555" />
+            <TextInput
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+              placeholder="Mot de passe"
+              placeholderTextColor="#A0AEC0"
+              style={styles.textInput}
+            />
+            <MaterialCommunityIcons
+              onPress={togglePasswordVisibility}
+              name={showPassword ? "eye-off" : "eye"}
+              size={22}
+              color="#555"
+              style={{ marginLeft: 10 }}
+            />
+          </View>
+        </View>
+
+        <View style={styles.forgotPassword}>
+          <Link href="/forgot-password">
+            <Text style={styles.forgotText}>Mot de passe oublié ?</Text>
+          </Link>
+        </View>
+
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[styles.submitButton, !isFormValid && styles.disabledButton]}
+            onPress={onSignInPress}
+            disabled={!isFormValid || loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.submitButtonText}>Connexion</Text>
+            )}
+          </TouchableOpacity>
+
+          <Text style={styles.signupText}>
+            Vous n'avez pas de compte ?
+            <Link style={styles.link} href={"/sign-up"}>
+              {" "}
+              S'inscrire
+            </Link>
+          </Text>
+
+          <Divider />
+
+          <GoogleSignIn />
+        </View>
+      </KeyboardAvoidingView>
+    </ScrollView>
+  );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#F9FAFB",
+    paddingHorizontal: 20,
+  },
+  logo: {
+    width: 120,
+    height: 120,
+    alignSelf: "center",
+    marginTop: 60,
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: "700",
+    textAlign: "center",
+    marginVertical: 25,
+    color: "#111827",
+  },
+  inputContainer: {
+    marginBottom: 15,
+  },
+  inputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    backgroundColor: "#fff",
+    borderWidth: 1.5,
+    borderColor: "#D1D5DB",
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
+  },
+  textInput: {
+    flex: 1,
+    fontSize: 16,
+    color: "#111",
+  },
+  forgotPassword: {
+    alignItems: "flex-end",
+    marginBottom: 20,
+  },
+  forgotText: {
+    color: "#078ECB",
+    fontWeight: "600",
+  },
+  buttonContainer: {
+    alignItems: "center",
+    gap: 20,
+  },
+  submitButton: {
+    backgroundColor: "#078ECB",
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 14,
+    width: "100%",
+    elevation: 3,
+  },
+  disabledButton: {
+    backgroundColor: "#A0AEC0",
+  },
+  submitButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  signupText: {
+    fontSize: 16,
+    color: "#4B5563",
+    textAlign: "center",
+  },
+  link: {
+    color: "#078ECB",
+    fontWeight: "700",
+  },
+});

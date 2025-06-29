@@ -7,7 +7,7 @@ export default function Page() {
   const { user } = useUser()
 
   return (
-    <View screenOptions={{headerShown: false}} >
+    <View >
       <SignedIn>
         <Text>Hello {user?.emailAddresses[0].emailAddress}</Text>
         <SignOutButton />
