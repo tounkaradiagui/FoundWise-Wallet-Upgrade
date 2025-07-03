@@ -10,8 +10,11 @@ import { useSignUp } from "@clerk/clerk-expo";
 import { useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import Toast from "react-native-toast-message";
+import { useRouter } from "expo-router";
+import { NetInfo } from "@react-native-community/netinfo";
 
 export default function Verify() {
+  const router = useRouter();
   const { isLoaded, signUp, setActive } = useSignUp();
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,15 +23,21 @@ export default function Verify() {
 
   const onVerifyPress = async () => {
     if (!isLoaded) return;
-    if (!isFormValid) {
+    setLoading(true);
+
+    const state = await NetInfo.fetch();
+    // Vérifier la connexion de l'utilisateur
+    if (!state.isConnected) {
       Toast.show({
+        text1: "Erreur de connexion",
+        text2: "Veuillez vérifier votre connexion Internet.",
         type: "error",
-        text1: "Code manquant",
-        text2: "Veuillez entrer le code de vérification.",
+        position: "top",
+        visibilityTime: 3000,
       });
+      setLoading(false);
       return;
     }
-    setLoading(true);
 
     try {
       const signUpAttempt = await signUp.attemptEmailAddressVerification({
@@ -38,18 +47,39 @@ export default function Verify() {
         await setActive({ session: signUpAttempt.createdSessionId });
         router.replace("/dashboard");
         Toast.show({
-        type: "success",
-        text1: "Vérification requise",
-        text2: "Un e-mail de vérification a été envoyé. Veuillez vérifier votre boîte de réception.",
-      });
+          type: "success",
+          text1: "Vérification réussie",
+          text2: "Votre adresse e-mail a été vérifiée avec succès.",
+        });
       }
+      if (signUpAttempt.status === "needs_action") {
+        console.log("Vérification en attente", signUpAttempt);
+        Toast.show({
+          type: "info",
+          text1: "Vérification en attente",
+          text2: "Veuillez vérifier votre e-mail pour le code de vérification.",
+        });
+      }
+      if (signUpAttempt.status === "failed") {
+        console.log("Échec de la vérification", signUpAttempt);
+        const errorMessage = signUpAttempt.errors[0]?.message || "Échec de la vérification.";
+        Toast.show({
+          type: "error",
+          text1: "Échec de la vérification",
+          text2: errorMessage,
+        });
+      }
+      setLoading(false);
+      
     } catch (err) {
+      console.log(JSON.stringify(err, null, 2));
+      const message = err?.errors?.[0]?.message || "Code invalide ou expiré.";
+
       Toast.show({
         type: "error",
-        text1: "Code invalide",
-        text2: "Le code de vérification est incorrect ou expiré.",
+        text1: "Erreur de vérification",
+        text2: message,
       });
-      // console.error(JSON.stringify(err, null, 2));
     }
   };
 

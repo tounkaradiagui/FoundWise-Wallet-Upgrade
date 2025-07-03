@@ -18,6 +18,7 @@ import { StatusBar } from "expo-status-bar";
 import Divider from "@/components/Divider";
 import GoogleSignIn from "@/components/GoogleSignIn";
 import Toast from "react-native-toast-message";
+import NetInfo from "@react-native-community/netinfo";
 
 export default function SignIn() {
   const { signIn, setActive, isLoaded } = useSignIn();
@@ -36,6 +37,20 @@ export default function SignIn() {
     if (!isLoaded) return;
     setLoading(true);
 
+    const state = await NetInfo.fetch();
+    // Vérifier la connexion de l'utilisateur
+    if (!state.isConnected) {
+      Toast.show({
+        text1: "Erreur de connexion",
+        text2: "Veuillez vérifier votre connexion Internet.",
+        type: "error",
+        position: "top",
+        visibilityTime: 3000,
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
       const signInAttempt = await signIn.create({
         identifier: emailAddress,
@@ -45,8 +60,20 @@ export default function SignIn() {
       if (signInAttempt.status === "complete") {
         await setActive({ session: signInAttempt.createdSessionId });
         router.replace("/dashboard");
+        Toast.show({
+          type: "success",
+          text1: "Connexion réussie",
+          text2: "Bienvenue dans votre tableau de bord.",
+        });
       } else {
-        console.warn("Connexion incomplète", signInAttempt);
+        // Si la connexion n'est pas complète, on peut afficher un message ou gérer l'état
+        // par exemple, en demandant à l'utilisateur de vérifier son e-mail
+        Toast.show({
+          type: "info",
+          text1: "Connexion en attente",
+          text2: "Veuillez vérifier votre e-mail pour finaliser la connexion.",
+        });
+        console.log("Connexion incomplète", signInAttempt);
       }
     } catch (err) {
       // Traduction basique des messages d'erreur courants

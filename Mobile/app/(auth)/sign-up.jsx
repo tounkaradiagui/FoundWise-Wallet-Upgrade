@@ -14,6 +14,7 @@ import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useSignUp } from "@clerk/clerk-expo";
 import Toast from "react-native-toast-message";
+import NetInfo from "@react-native-community/netinfo";
 import Verify from "./verify";
 
 export default function SignUp() {
@@ -61,7 +62,13 @@ export default function SignUp() {
   };
 
   const validateInputs = () => {
-    if (!emailAddress || !password || !confirmPassword || !firstname || !lastname) {
+    if (
+      !emailAddress ||
+      !password ||
+      !confirmPassword ||
+      !firstname ||
+      !lastname
+    ) {
       Toast.show({
         type: "error",
         text1: "Champs manquants",
@@ -84,9 +91,36 @@ export default function SignUp() {
     if (!isLoaded || !validateInputs()) return;
     setLoading(true);
 
+    const state = await NetInfo.fetch();
+    // Vérifier la connexion de l'utilisateur
+    if (!state.isConnected) {
+      Toast.show({
+        text1: "Erreur de connexion",
+        text2: "Veuillez vérifier votre connexion Internet.",
+        type: "error",
+        position: "top",
+        visibilityTime: 3000,
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
       await signUp.create({ emailAddress, password });
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+      // Add firstname and lastname to the signUp object
+      await signUp.update({
+        firstName: firstname,
+        lastName: lastname,
+      });
+
+      Toast.show({
+        type: "success",
+        text1: "Vérification requise",
+        text2:
+          "Un e-mail de vérification a été envoyé. Veuillez vérifier votre boîte de réception.",
+      });
+      // Redirection vers la page de vérification
       setPendingVerification(true);
     } catch (err) {
       const code = err?.errors?.[0]?.code;
