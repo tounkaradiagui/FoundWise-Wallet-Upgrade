@@ -1,11 +1,38 @@
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useCallback, useEffect } from "react";
+import * as WebBrowser from "expo-web-browser";
+import * as AuthSession from "expo-auth-session";
+import { useSSO } from "@clerk/clerk-expo";
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function GoogleSignIn() {
-  const handleGoogleSignIn = () => {
-    console.log("Google Sign-In clicked");
-    // Sign-in logic
-  };
+  const { startSSOFlow } = useSSO();
+
+  useEffect(() => {
+    WebBrowser.warmUpAsync();
+    return () => {
+      WebBrowser.coolDownAsync();
+    };
+  }, []);
+
+  const handleGoogleSignIn = useCallback(async () => {
+    try {
+      const { createdSessionId, setActive } = await startSSOFlow({
+        strategy: "oauth_google",
+        redirectUrl: AuthSession.makeRedirectUri({
+          scheme: "mobile", // Remplace par le scheme de ton app (voir commentaire ci-dessous)
+        }),
+      });
+
+      if (createdSessionId) {
+        setActive({ session: createdSessionId });
+      }
+    } catch (err) {
+      console.log("Erreur OAuth Google:", JSON.stringify(err, null, 2));
+    }
+  }, [startSSOFlow]);
 
   return (
     <TouchableOpacity
