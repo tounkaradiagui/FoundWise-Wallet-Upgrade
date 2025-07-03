@@ -73,7 +73,7 @@ export default function SignIn() {
           text1: "Connexion en attente",
           text2: "Veuillez vérifier votre e-mail pour finaliser la connexion.",
         });
-        console.log("Connexion incomplète", signInAttempt);
+        // console.log("Connexion incomplète", signInAttempt);
       }
     } catch (err) {
       // Traduction basique des messages d'erreur courants

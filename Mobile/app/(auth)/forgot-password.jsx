@@ -28,6 +28,7 @@ export default function ForgotPassword() {
 
     const state = await NetInfo.fetch();
     // Vérifier la connexion de l'utilisateur
+    // Si l'utilisateur n'est pas connecté, afficher un message d'erreur
     if (!state.isConnected) {
       Toast.show({
         text1: "Erreur de connexion",
@@ -55,7 +56,7 @@ export default function ForgotPassword() {
 
       setStage("reset");
     } catch (err) {
-      console.log("Reset request error:", err);
+      // console.log("Reset request error:", err);
       Toast.show({
         type: "error",
         text1: "Erreur",
@@ -99,7 +100,7 @@ export default function ForgotPassword() {
         });
         router.replace("/sign-in");
       } else {
-        console.log("Reset password attempt:", result);
+        // console.log("Reset password attempt:", result);
         Toast.show({
             type: "info",
             text1: "Réinitialisation en attente",
@@ -108,7 +109,7 @@ export default function ForgotPassword() {
         setStage("request");
       }
     } catch (err) {
-      console.log("Reset password error:", err);
+      // console.log("Reset password error:", err);
       Toast.show({
         type: "error",
         text1: "Erreur",

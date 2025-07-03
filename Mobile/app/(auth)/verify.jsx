@@ -53,7 +53,7 @@ export default function Verify() {
         });
       }
       if (signUpAttempt.status === "needs_action") {
-        console.log("Vérification en attente", signUpAttempt);
+        // console.log("Vérification en attente", signUpAttempt);
         Toast.show({
           type: "info",
           text1: "Vérification en attente",
@@ -61,7 +61,7 @@ export default function Verify() {
         });
       }
       if (signUpAttempt.status === "failed") {
-        console.log("Échec de la vérification", signUpAttempt);
+        // console.log("Échec de la vérification", signUpAttempt);
         const errorMessage = signUpAttempt.errors[0]?.message || "Échec de la vérification.";
         Toast.show({
           type: "error",
@@ -72,7 +72,7 @@ export default function Verify() {
       setLoading(false);
       
     } catch (err) {
-      console.log(JSON.stringify(err, null, 2));
+      // console.log(JSON.stringify(err, null, 2));
       const message = err?.errors?.[0]?.message || "Code invalide ou expiré.";
 
       Toast.show({

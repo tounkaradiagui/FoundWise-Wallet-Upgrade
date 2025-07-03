@@ -1,5 +1,4 @@
-import { View, Text } from 'react-native'
-import React, { use } from 'react'
+import { View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const SafeScreen = ({children}) => {

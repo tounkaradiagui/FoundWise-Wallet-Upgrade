@@ -22,7 +22,7 @@ export default function GoogleSignIn() {
       const { createdSessionId, setActive } = await startSSOFlow({
         strategy: "oauth_google",
         redirectUrl: AuthSession.makeRedirectUri({
-          scheme: "mobile", // Remplace par le scheme de ton app (voir commentaire ci-dessous)
+          scheme: "mobile",
         }),
       });
 
