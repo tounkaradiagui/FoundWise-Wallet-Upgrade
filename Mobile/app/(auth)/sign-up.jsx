@@ -4,10 +4,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  ScrollView,
-  KeyboardAvoidingView,
   StyleSheet,
-  Platform,
   ActivityIndicator,
 } from "react-native";
 import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -16,6 +13,8 @@ import { useSignUp } from "@clerk/clerk-expo";
 import Toast from "react-native-toast-message";
 import NetInfo from "@react-native-community/netinfo";
 import Verify from "./verify";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import getClerkErrorMessage from "@/utils/translateClerkError";
 
 export default function SignUp() {
   const { isLoaded, signUp } = useSignUp();
@@ -123,15 +122,18 @@ export default function SignUp() {
       // Redirection vers la page de vérification
       setPendingVerification(true);
     } catch (err) {
-      const code = err?.errors?.[0]?.code;
-      const fallbackMessage =
-        err?.errors?.[0]?.message ||
-        "Une erreur s'est produite. Veuillez réessayer.";
-      const message = translatedErrors[code] || fallbackMessage;
+      console.log("SignIn error:", JSON.stringify(err, null, 2));
+      // Gérer les erreurs de connexion
+      const errorCode = err?.errors?.[0]?.code || "";
+      const fallback =
+        err?.errors?.[0]?.message || "Une erreur s'est produite.";
+
       Toast.show({
         type: "error",
-        text1: "Erreur d'inscription",
-        text2: message,
+        text1: "Erreur de connexion",
+        text2: getClerkErrorMessage(errorCode, fallback),
+        position: "top",
+        visibilityTime: 3000,
       });
       // console.error(JSON.stringify(err, null, 2));
     } finally {
@@ -144,13 +146,12 @@ export default function SignUp() {
   }
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={{ paddingBottom: 60 }}
-      keyboardShouldPersistTaps="handled"
-    >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+    <View style={styles.container}>
+      <KeyboardAwareScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ flexGrow: 1 }}
+        enableOnAndroid={true}
+        showsVerticalScrollIndicator={false}
       >
         <Text style={styles.title}>Créer un compte</Text>
 
@@ -249,8 +250,8 @@ export default function SignUp() {
             </Text>
           </TouchableOpacity>
         </View>
-      </KeyboardAvoidingView>
-    </ScrollView>
+      </KeyboardAwareScrollView>
+    </View>
   );
 }
 

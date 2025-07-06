@@ -19,7 +19,9 @@ import Divider from "@/components/Divider";
 import GoogleSignIn from "@/components/GoogleSignIn";
 import Toast from "react-native-toast-message";
 import NetInfo from "@react-native-community/netinfo";
+import getClerkErrorMessage from "@/utils/translateClerkError";
 
+ 
 export default function SignIn() {
   const { signIn, setActive, isLoaded } = useSignIn();
   const router = useRouter();
@@ -76,28 +78,17 @@ export default function SignIn() {
         // console.log("Connexion incomplète", signInAttempt);
       }
     } catch (err) {
-      // Traduction basique des messages d'erreur courants
+      console.log("SignIn error:", JSON.stringify(err, null, 2));
+      // Gérer les erreurs de connexion
       const errorCode = err?.errors?.[0]?.code || "";
-      const message = err?.errors?.[0]?.message || "";
-
-      const translated = {
-        form_identifier_not_found: "Adresse e-mail introuvable.",
-        form_password_incorrect: "Mot de passe incorrect.",
-        form_param_format_invalid: "Format invalide dans le formulaire.",
-        form_password_pwned:
-          "Mot de passe compromis. Veuillez en choisir un autre.",
-        form_identifier_exists: "Cette adresse est déjà utilisée.",
-        form_password_too_short: "Mot de passe trop court.",
-      };
-
-      const fallback = "Une erreur s'est produite. Veuillez réessayer.";
-      const errorMessage = translated[errorCode] || fallback;
+      const fallback = err?.errors?.[0]?.message || "Une erreur s'est produite.";
 
       Toast.show({
         type: "error",
         text1: "Erreur de connexion",
-        text2: errorMessage,
-      });
+        text2: getClerkErrorMessage(errorCode, fallback),
+        position: "top",
+        visibilityTime: 3000,});
     } finally {
       setLoading(false);
     }
@@ -110,9 +101,10 @@ export default function SignIn() {
       style={styles.container}
       contentContainerStyle={{ paddingBottom: 60 }}
       keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
     >
       <View style={styles.statusBarBackground} />
-      
+
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
@@ -208,8 +200,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   logo: {
-    width: 120,
-    height: 120,
+    width: 140,
+    height: 140,
     alignSelf: "center",
     marginTop: 60,
   },

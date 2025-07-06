@@ -11,7 +11,7 @@ import { useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import Toast from "react-native-toast-message";
 import { useRouter } from "expo-router";
-import { NetInfo } from "@react-native-community/netinfo";
+import NetInfo from "@react-native-community/netinfo";
 
 export default function Verify() {
   const router = useRouter();
@@ -72,7 +72,7 @@ export default function Verify() {
       setLoading(false);
       
     } catch (err) {
-      // console.log(JSON.stringify(err, null, 2));
+      console.log(JSON.stringify(err, null, 2));
       const message = err?.errors?.[0]?.message || "Code invalide ou expiré.";
 
       Toast.show({
@@ -80,6 +80,7 @@ export default function Verify() {
         text1: "Erreur de vérification",
         text2: message,
       });
+      setLoading(false);
     }
   };
 

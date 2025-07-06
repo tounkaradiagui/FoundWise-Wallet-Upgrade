@@ -10,6 +10,7 @@ import { useSignIn } from "@clerk/clerk-expo";
 import { useState } from "react";
 import Toast from "react-native-toast-message";
 import NetInfo from "@react-native-community/netinfo";
+import getClerkErrorMessage from "@/utils/translateClerkError";
 
 export default function ForgotPasswordRequest({ onCodeSent, email, setEmail }) {
   const { isLoaded, signIn } = useSignIn();
@@ -53,23 +54,20 @@ export default function ForgotPasswordRequest({ onCodeSent, email, setEmail }) {
 
       onCodeSent();
     } catch (err) {
-        // Vérifier si l'erreur est liée à un compte inexistant
-        if (err.status === 404) {
-        // Afficher un message d'erreur spécifique si aucun compte n'est associé à l'email
-        Toast.show({
-            type: "error",
-            text1: "Erreur",
-            text2: "Aucun compte associé à cet email",
-        });
-        } else {
-        // Afficher un message d'erreur générique pour les autres erreurs
-        Toast.show({
-            type: "error",
-            text1: "Erreur",
-            text2: err?.errors?.[0]?.message || "Une erreur s'est produite.",
-            });     
-    }
-      // console.log("Erreur de réinitialisation du mot de passe:", err);
+      // Vérifier si l'erreur est liée à un compte inexistant
+      // Gérer les erreurs de connexion
+      const errorCode = err?.errors?.[0]?.code || "";
+      const fallback =
+        err?.errors?.[0]?.message || "Une erreur s'est produite.";
+
+      Toast.show({
+        type: "error",
+        text1: "Erreur de connexion",
+        text2: getClerkErrorMessage(errorCode, fallback),
+        position: "top",
+        visibilityTime: 3000,
+      });
+      console.log("Erreur Clerk:", JSON.stringify(err, null, 2));
     } finally {
       setLoading(false);
     }
