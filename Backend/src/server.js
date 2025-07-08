@@ -20,6 +20,11 @@ app.use(express.json());
 const PORT = process.env.PORT || 3000;
 
 // API endpoint to check if the backend is working
+app.get('/api', (req, res) => {
+  res.status(200).json({ message: 'Backend is working!' });
+});
+
+// Middleware to log requests
 app.use('/', (req, res, next) => {
   console.log('Hey we hit a req, the method is : ', req.method);
   next();
