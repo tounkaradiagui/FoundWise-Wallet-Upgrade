@@ -21,7 +21,7 @@ const PORT = process.env.PORT || 3000;
 
 // API endpoint to check if the backend is working
 app.get('/', (req, res) => {
-  res.status(200).json({ message: 'Backend is working!' });
+  res.send('Backend is working!');
 });
 
 // Middleware to log requests
