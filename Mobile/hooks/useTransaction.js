@@ -1,7 +1,8 @@
 import { useCallback, useState } from "react";
 import { Alert } from "react-native";
 
-const API_URL = "http://10.203.210.98:5001/api";
+const API_URL = "https://foundwise-wallet-upgrade-1.onrender.com/api";
+// const API_URL = "http://localhost:5001/api";
 
 export const useTransaction = (userId) => {
     const [transactions, setTransactions] = useState([]);
@@ -13,7 +14,6 @@ export const useTransaction = (userId) => {
     });
 
     const fetchTransactions = useCallback(async () => {
-        setLoading(true);
         try {
             const response = await fetch(`${API_URL}/transactions/${userId}`);
             const data = await response.json();
@@ -25,11 +25,10 @@ export const useTransaction = (userId) => {
     }, [userId]);
 
     const fetchSummary = useCallback(async () => {
-        setLoading(true);
         try {
             const response = await fetch(`${API_URL}/transactions/summary/${userId}`);
             const data = await response.json();
-            setTransactions(data);
+            setSummary(data);
         } catch (error) {
             console.log("Error fetching summary:", error);
             

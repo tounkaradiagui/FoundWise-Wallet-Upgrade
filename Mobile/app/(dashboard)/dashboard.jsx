@@ -1,14 +1,35 @@
-import { SignedIn, SignedOut, useUser } from '@clerk/clerk-expo'
-import { Link } from 'expo-router'
-import { Text, View } from 'react-native'
-import { SignOutButton } from '@/components/SignOutButton'
-import { useTransaction } from '../../hooks/useTransaction';
-import { useEffect } from 'react';
+import { SignedIn, SignedOut, useUser } from "@clerk/clerk-expo";
+import { Link } from "expo-router";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { SignOutButton } from "@/components/SignOutButton";
+import { useTransaction } from "../../hooks/useTransaction";
+import { useEffect } from "react";
+import Loader from "../../components/Loader";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 
 export default function Home() {
   const { user } = useUser();
+  const { transactions, summary, loading, loadData, deleteTransaction } =
+    useTransaction(user.id);
 
-  const {transactions, summary, loading, loadData, deleteTransaction} = useTransaction(user.id);
+  // Fonction pour obtenir la salutation selon le moment de la journée
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) {
+      return "Bonjour"; // Matin
+    } else if (hour < 18) {
+      return "Bon après-midi"; // Après-midi
+    } else {
+      return "Bonsoir"; // Soir
+    }
+  };
+
+  // Fonction pour formater la date
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const options = { day: "2-digit", month: "2-digit", year: "numeric" };
+    return date.toLocaleDateString("fr-FR", options); // Format de la date en français
+  };
 
   useEffect(() => {
     loadData();
@@ -18,13 +39,78 @@ export default function Home() {
   console.log("Summary:", summary);
 
   console.log("User ID:", user?.id);
-  
-  
-  return (  
-    <View >
-      <SignedIn>
+
+  if (loading) return <Loader />;
+
+  return (
+    <View>
+      <View style={styles.headerTop}>
+        <Text style={styles.salutation}>{getGreeting()},</Text>
+      </View>
+
+      <View style={styles.header}>
+        <View>
+          <Text style={styles.name}>
+            {user.firstName} {user.lastName} !
+          </Text>
+        </View>
+        <View>
+          <TouchableOpacity>
+            <Ionicons name="notifications" size={24} color="#078ECB" />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Summary */}
+      <View style={styles.summaryCard}>
+        <View style={styles.topRow}>
+          <View style={styles.balanceContainer}>
+            <Text style={styles.subTitle}>Solde total</Text>
+            <Text style={styles.balanceText}>{summary.balance} F CFA</Text>
+          </View>
+        </View>
+
+        <View style={styles.bottomRow}>
+          <View style={styles.column}>
+            <Text style={styles.subTitle}>Revenus</Text>
+            <Text style={styles.incomeText}>{summary.income} F CFA</Text>
+          </View>
+          <View style={styles.column}>
+            <Text style={styles.subTitle}>Dépenses</Text>
+            <Text style={styles.expenseText}>{summary.expenses} F CFA</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Transactions */}
+      <View style={styles.transactionContainer}>
+        <View>
+          <Text style={styles.name}>Dernières Transactions</Text>
+        </View>
+        <View>
+          <TouchableOpacity style={{ flexDirection: "row" }}>
+            <Text style={{ fontSize: 18, fontWeight: "bold", color: "black" }}>
+              Voir
+            </Text>
+            <MaterialIcons
+              name="keyboard-arrow-right"
+              size={24}
+              color="black"
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* <SignedIn>
         <Text>Hello {user?.emailAddresses[0].emailAddress}</Text>
+        <Text>Balance: {summary.balance}</Text>
+        <Text>Income: {summary.income}</Text>
+        <Text>Expenses: {summary.expenses}</Text>
+        <Text>Username: {user.id}</Text>
+        <Text>First Name: {user?.firstName}</Text>
+        <Text>Last Name: {user?.lastName}</Text>
         <SignOutButton />
+
       </SignedIn>
       <SignedOut>
         <Link href="/(auth)/sign-in">
@@ -36,7 +122,99 @@ export default function Home() {
         <Link href="/index">
           <Text>Sign up</Text>
         </Link>
-      </SignedOut>
+      </SignedOut> */}
     </View>
-  )
+  );
 }
+
+const styles = StyleSheet.create({
+  headerTop: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    paddingHorizontal: 10,
+    marginTop: 10,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 10,
+  },
+  salutation: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  name: {
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  transactionContainer: {
+    marginTop: 20,
+    paddingHorizontal: 15,
+    padding: 10,
+    justifyContent: "space-between",
+    flexDirection: "row",
+    backgroundColor: "#E9B94E",
+    marginHorizontal: 15,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+summaryCard: {
+  marginTop: 20,
+  marginHorizontal: 15,
+  padding: 20,
+  borderRadius: 20,
+  backgroundColor: "#F5F5F5",
+  shadowColor: "#078ECB",
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.5,
+  shadowRadius: 4,
+  elevation: 5, // Android shadow
+},
+
+topRow: {
+  flexDirection: "row",
+  justifyContent: "flex-start",
+  marginBottom: 15,
+},
+
+balanceContainer: {
+  alignItems: "flex-start",
+},
+
+balanceText: {
+  fontSize: 26,
+  fontWeight: "bold",
+  color: "#000",
+},
+
+bottomRow: {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  width: "100%",
+},
+
+column: {
+  flex: 1,
+  alignItems: "center",
+},
+
+subTitle: {
+  fontSize: 14,
+  fontWeight: "600",
+  color: "#333",
+  marginBottom: 4,
+},
+
+incomeText: {
+  fontSize: 18,
+  fontWeight: "bold",
+  color: "green",
+},
+
+expenseText: {
+  fontSize: 18,
+  fontWeight: "bold",
+  color: "red",
+},
+
+});

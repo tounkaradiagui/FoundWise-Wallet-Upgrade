@@ -20,8 +20,8 @@ import GoogleSignIn from "@/components/GoogleSignIn";
 import Toast from "react-native-toast-message";
 import NetInfo from "@react-native-community/netinfo";
 import getClerkErrorMessage from "@/utils/translateClerkError";
+import * as WebBrowser from 'expo-web-browser';
 
- 
 export default function SignIn() {
   const { signIn, setActive, isLoaded } = useSignIn();
   const router = useRouter();
@@ -53,6 +53,10 @@ export default function SignIn() {
       return;
     }
 
+    if (Platform.OS !== "web") {
+      await WebBrowser.coolDownAsync();
+    }
+
     try {
       const signInAttempt = await signIn.create({
         identifier: emailAddress,
@@ -81,14 +85,16 @@ export default function SignIn() {
       console.log("SignIn error:", JSON.stringify(err, null, 2));
       // Gérer les erreurs de connexion
       const errorCode = err?.errors?.[0]?.code || "";
-      const fallback = err?.errors?.[0]?.message || "Une erreur s'est produite.";
+      const fallback =
+        err?.errors?.[0]?.message || "Une erreur s'est produite.";
 
       Toast.show({
         type: "error",
         text1: "Erreur de connexion",
         text2: getClerkErrorMessage(errorCode, fallback),
         position: "top",
-        visibilityTime: 3000,});
+        visibilityTime: 3000,
+      });
     } finally {
       setLoading(false);
     }
