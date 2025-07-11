@@ -8,19 +8,25 @@ import {
   TouchableOpacity,
   StatusBar,
 } from "react-native";
-import { Link } from "expo-router";
+import { Link, Redirect } from "expo-router";
 import Swiper from "react-native-swiper";
 import IMAGES from "@/assets/index";
 import { FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { useAuth } from "@clerk/clerk-expo";
 
 const { width: windowWidth } = Dimensions.get("window");
 
-
 export default function WelcomeScreen() {
- const navigation = useNavigation();
+  const navigation = useNavigation();
   const swiperRef = useRef(null); // Référence pour le swiper
 
+  const { isSignedIn } = useAuth();
+
+  if (isSignedIn) {
+    return <Redirect href={"/dashboard"} />;
+  }
+  
   const data = [
     {
       id: 2,
@@ -64,9 +70,7 @@ export default function WelcomeScreen() {
     <View style={styles.container}>
       <StatusBar backgroundColor="#078ECB" color="#fff" />
       <View style={{ alignItems: "flex-end", marginTop: 40, marginEnd: 10 }}>
-        <Link
-          href={"/sign-in"}
-        >
+        <Link href={"/sign-in"}>
           <Text style={{ fontSize: 15, fontWeight: "bold", color: "#078ECB" }}>
             Sauter
           </Text>
@@ -108,7 +112,6 @@ export default function WelcomeScreen() {
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {

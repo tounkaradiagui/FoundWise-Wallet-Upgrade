@@ -8,6 +8,9 @@ const budget = require('../assets/icons/budget.png');
 const budgetOutline = require('../assets/icons/budget-outline.png');
 const transaction = require('../assets/icons/transaction.png');
 const transactionOutline = require('../assets/icons/transaction-outline.png');
+const plus = require('../assets/icons/plus.png');
+const plusOutline = require('../assets/icons/plusOutline.png');
+
 
 export default {
     home,
@@ -19,5 +22,7 @@ export default {
     budget,
     budgetOutline,
     transaction,
-    transactionOutline
+    transactionOutline,
+    plus,
+    plusOutline
 }

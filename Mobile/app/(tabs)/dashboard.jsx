@@ -1,11 +1,12 @@
 import { SignedIn, SignedOut, useUser } from "@clerk/clerk-expo";
 import { Link } from "expo-router";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SignOutButton } from "@/components/SignOutButton";
 import { useTransaction } from "../../hooks/useTransaction";
 import { useEffect } from "react";
 import Loader from "../../components/Loader";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 
 export default function Home() {
   const { user } = useUser();
@@ -23,6 +24,7 @@ export default function Home() {
       return "Bonsoir"; // Soir
     }
   };
+
 
   // Fonction pour formater la date
   const formatDate = (dateString) => {
@@ -44,19 +46,19 @@ export default function Home() {
 
   return (
     <View>
-      <View style={styles.headerTop}>
-        <Text style={styles.salutation}>{getGreeting()},</Text>
-      </View>
-
       <View style={styles.header}>
-        <View>
+        <View style={styles.headerLeft}>
+          <Text style={styles.salutation}>{getGreeting()},</Text>
           <Text style={styles.name}>
             {user.firstName} {user.lastName} !
           </Text>
+          {/* username */}
+          {/* <Text style={styles.name}>{user?.emailAddresses[0]?.emailAddress.split("@")[0]}</Text> */}
         </View>
         <View>
-          <TouchableOpacity>
-            <Ionicons name="notifications" size={24} color="#078ECB" />
+          <TouchableOpacity style={{marginTop: 15}}>
+            <Image source={require("../../assets/images/profile-picture.jpg")} style={styles.avatar} />
+            {/* <FontAwesome6 name="user-tie" size={30} color="#078ECB" /> */}
           </TouchableOpacity>
         </View>
       </View>
@@ -128,25 +130,31 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
-  headerTop: {
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    paddingHorizontal: 10,
-    marginTop: 10,
-  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingHorizontal: 10,
+    alignItems: "center",
+    paddingHorizontal: 15,
+    paddingVertical: 10,
   },
+
+  headerLeft: {
+    flexDirection: "column",
+    justifyContent: "flex-start",
+    paddingHorizontal: 10,
+    marginTop: 15,
+  },
+
   salutation: {
     fontSize: 20,
     fontWeight: "bold",
   },
+
   name: {
     fontSize: 14,
     fontWeight: "bold",
   },
+
   transactionContainer: {
     marginTop: 20,
     paddingHorizontal: 15,
@@ -158,63 +166,72 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
-summaryCard: {
-  marginTop: 20,
-  marginHorizontal: 15,
-  padding: 20,
-  borderRadius: 20,
-  backgroundColor: "#F5F5F5",
-  shadowColor: "#078ECB",
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.5,
-  shadowRadius: 4,
-  elevation: 5, // Android shadow
-},
 
-topRow: {
-  flexDirection: "row",
-  justifyContent: "flex-start",
-  marginBottom: 15,
-},
+  summaryCard: {
+    marginTop: 20,
+    marginHorizontal: 15,
+    padding: 20,
+    borderRadius: 20,
+    backgroundColor: "#F5F5F5",
+    shadowColor: "#078ECB",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+    elevation: 5, // Android shadow
+  },
 
-balanceContainer: {
-  alignItems: "flex-start",
-},
+  topRow: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    marginBottom: 15,
+  },
 
-balanceText: {
-  fontSize: 26,
-  fontWeight: "bold",
-  color: "#000",
-},
+  balanceContainer: {
+    alignItems: "flex-start",
+  },
 
-bottomRow: {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  width: "100%",
-},
+  balanceText: {
+    fontSize: 26,
+    fontWeight: "bold",
+    color: "#000",
+  },
 
-column: {
-  flex: 1,
-  alignItems: "center",
-},
+  bottomRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
 
-subTitle: {
-  fontSize: 14,
-  fontWeight: "600",
-  color: "#333",
-  marginBottom: 4,
-},
+  column: {
+    flex: 1,
+    alignItems: "center",
+  },
 
-incomeText: {
-  fontSize: 18,
-  fontWeight: "bold",
-  color: "green",
-},
+  subTitle: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 4,
+  },
 
-expenseText: {
-  fontSize: 18,
-  fontWeight: "bold",
-  color: "red",
-},
+  incomeText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "green",
+  },
+
+  expenseText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "red",
+  },
+
+  avatar: {
+    width: 50,
+    height: 55,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#078ECB",
+  },
 
 });
