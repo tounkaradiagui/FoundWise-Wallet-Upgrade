@@ -1,5 +1,5 @@
 import { SignedIn, SignedOut, useUser } from "@clerk/clerk-expo";
-import { Link } from "expo-router";
+import { Link, router, useRouter } from "expo-router";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SignOutButton } from "@/components/SignOutButton";
 import { useTransaction } from "../../hooks/useTransaction";
@@ -12,6 +12,8 @@ export default function Home() {
   const { user } = useUser();
   const { transactions, summary, loading, loadData, deleteTransaction } =
     useTransaction(user.id);
+
+  const router = useRouter();
 
   // Fonction pour obtenir la salutation selon le moment de la journée
   const getGreeting = () => {
@@ -56,7 +58,7 @@ export default function Home() {
           {/* <Text style={styles.name}>{user?.emailAddresses[0]?.emailAddress.split("@")[0]}</Text> */}
         </View>
         <View>
-          <TouchableOpacity style={{marginTop: 15}}>
+          <TouchableOpacity style={{marginTop: 15}} onPress={() => router.push("/profile")}>
             <Image source={require("../../assets/images/profile-picture.jpg")} style={styles.avatar} />
             {/* <FontAwesome6 name="user-tie" size={30} color="#078ECB" /> */}
           </TouchableOpacity>
@@ -90,7 +92,7 @@ export default function Home() {
           <Text style={styles.name}>Dernières Transactions</Text>
         </View>
         <View>
-          <TouchableOpacity style={{ flexDirection: "row" }}>
+          <TouchableOpacity style={{ flexDirection: "row" }} onPress={() => router.push("/transactions")}>
             <Text style={{ fontSize: 18, fontWeight: "bold", color: "black" }}>
               Voir
             </Text>

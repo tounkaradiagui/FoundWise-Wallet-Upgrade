@@ -1,6 +1,7 @@
 import { useClerk } from '@clerk/clerk-expo'
 import { router } from 'expo-router'
 import { Text, TouchableOpacity } from 'react-native'
+import Toast from 'react-native-toast-message'
 
 export const SignOutButton = () => {
   // This component can be used to sign out the user.
@@ -9,12 +10,13 @@ export const SignOutButton = () => {
     try {
       await signOut()
       router.replace('/sign-in');
+      
     } catch (err) {
       Toast.show(
         {
+          type: 'error',
           text1: 'Déconnexion échouée',
           text2: 'Veuillez réessayer plus tard.',
-          type: 'error',
           position: 'top',
           visibilityTime: 3000,
         });
