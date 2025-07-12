@@ -1,12 +1,21 @@
 import { SignedIn, SignedOut, useUser } from "@clerk/clerk-expo";
 import { Link, router, useRouter } from "expo-router";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SignOutButton } from "@/components/SignOutButton";
 import { useTransaction } from "../../hooks/useTransaction";
 import { useEffect } from "react";
-import Loader from "../../components/Loader";
+import Loader from "@/components/Loader";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import TransactionItem from "@/components/TransactionItem";
+import EmptyTransaction from "@/components/EmptyTransaction";
 
 export default function Home() {
   const { user } = useUser();
@@ -27,12 +36,15 @@ export default function Home() {
     }
   };
 
-
   // Fonction pour formater la date
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const options = { day: "2-digit", month: "2-digit", year: "numeric" };
     return date.toLocaleDateString("fr-FR", options); // Format de la date en français
+  };
+
+  const handleDelete = (id) => {
+    console.log("Delete transaction with id:", id);
   };
 
   useEffect(() => {
@@ -48,6 +60,7 @@ export default function Home() {
 
   return (
     <View>
+      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <Text style={styles.salutation}>{getGreeting()},</Text>
@@ -58,8 +71,14 @@ export default function Home() {
           {/* <Text style={styles.name}>{user?.emailAddresses[0]?.emailAddress.split("@")[0]}</Text> */}
         </View>
         <View>
-          <TouchableOpacity style={{marginTop: 15}} onPress={() => router.push("/profile")}>
-            <Image source={require("../../assets/images/profile-picture.jpg")} style={styles.avatar} />
+          <TouchableOpacity
+            style={{ marginTop: 15 }}
+            onPress={() => router.push("/profile")}
+          >
+            <Image
+              source={require("../../assets/images/profile-picture.jpg")}
+              style={styles.avatar}
+            />
             {/* <FontAwesome6 name="user-tie" size={30} color="#078ECB" /> */}
           </TouchableOpacity>
         </View>
@@ -92,7 +111,10 @@ export default function Home() {
           <Text style={styles.name}>Dernières Transactions</Text>
         </View>
         <View>
-          <TouchableOpacity style={{ flexDirection: "row" }} onPress={() => router.push("/transactions")}>
+          <TouchableOpacity
+            style={{ flexDirection: "row" }}
+            onPress={() => router.push("/transactions")}
+          >
             <Text style={{ fontSize: 18, fontWeight: "bold", color: "black" }}>
               Voir
             </Text>
@@ -104,6 +126,16 @@ export default function Home() {
           </TouchableOpacity>
         </View>
       </View>
+
+      <FlatList
+        data={transactions}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <TransactionItem item={item} onDelete={handleDelete} />
+        )}
+        ListEmptyComponent={<EmptyTransaction/>}
+        showsVerticalScrollIndicator={false}
+      />
 
       {/* <SignedIn>
         <Text>Hello {user?.emailAddresses[0].emailAddress}</Text>
@@ -235,5 +267,4 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#078ECB",
   },
-
 });

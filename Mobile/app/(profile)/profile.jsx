@@ -61,7 +61,7 @@ const Profile = () => {
 
               router.replace("/(auth)/sign-in");
             } catch (error) {
-              console.error("Erreur lors de la déconnexion :", error);
+              // console.log("Erreur lors de la déconnexion :", error);
 
               Toast.show({
                 type: "error",

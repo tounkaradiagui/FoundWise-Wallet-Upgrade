@@ -13,7 +13,7 @@ import Swiper from "react-native-swiper";
 import IMAGES from "@/assets/index";
 import { FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { useAuth } from "@clerk/clerk-expo";
+import { useAuth, useUser } from "@clerk/clerk-expo";
 
 const { width: windowWidth } = Dimensions.get("window");
 
@@ -22,10 +22,13 @@ export default function WelcomeScreen() {
   const swiperRef = useRef(null); // Référence pour le swiper
 
   const { isSignedIn } = useAuth();
+  const { isLoaded } = useUser();
 
   if (isSignedIn) {
     return <Redirect href={"/dashboard"} />;
   }
+
+  if(!isLoaded) return null;
   
   const data = [
     {

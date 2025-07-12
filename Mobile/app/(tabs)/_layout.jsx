@@ -9,6 +9,7 @@ export default function Layout() {
   if (!isSignedIn) {
     return <Redirect href="/(auth)/sign-in" />;
   }
+
   return (
     <Tabs>
       <Tabs.Screen
@@ -33,7 +34,7 @@ export default function Layout() {
       />
 
       <Tabs.Screen
-        name="createTransactions"
+        name="create-transactions"
         options={{
           headerShown: false,
           title: "Ajouter Transaction",
