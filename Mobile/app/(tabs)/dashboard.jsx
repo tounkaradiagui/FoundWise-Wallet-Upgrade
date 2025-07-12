@@ -1,19 +1,18 @@
-import { SignedIn, SignedOut, useUser } from "@clerk/clerk-expo";
-import { Link, router, useRouter } from "expo-router";
+import { useUser } from "@clerk/clerk-expo";
+import { useRouter } from "expo-router";
 import {
   FlatList,
   Image,
+  RefreshControl,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import { SignOutButton } from "@/components/SignOutButton";
 import { useTransaction } from "../../hooks/useTransaction";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Loader from "@/components/Loader";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import { MaterialIcons } from "@expo/vector-icons";
 import TransactionItem from "@/components/TransactionItem";
 import EmptyTransaction from "@/components/EmptyTransaction";
 
@@ -22,6 +21,16 @@ export default function Home() {
   const { transactions, summary, loading, loadData, deleteTransaction } =
     useTransaction(user.id);
 
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback( async() => {
+    setRefreshing(true);
+    await loadData()
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
+  
   const router = useRouter();
 
   // Fonction pour obtenir la salutation selon le moment de la journée
@@ -36,27 +45,20 @@ export default function Home() {
     }
   };
 
-  // Fonction pour formater la date
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const options = { day: "2-digit", month: "2-digit", year: "numeric" };
-    return date.toLocaleDateString("fr-FR", options); // Format de la date en français
-  };
-
-  const handleDelete = (id) => {
-    console.log("Delete transaction with id:", id);
-  };
+  // const handleDelete = (id) => {
+  //   console.log("Delete transaction with id:", id);
+  // };
 
   useEffect(() => {
     loadData();
   }, [loadData]);
 
-  console.log("Transactions:", transactions);
-  console.log("Summary:", summary);
+  // console.log("Transactions:", transactions);
+  // console.log("Summary:", summary);
 
-  console.log("User ID:", user?.id);
-
-  if (loading) return <Loader />;
+  // console.log("User ID:", user?.id);
+ 
+  if(loading && !refreshing) return <Loader />;
 
   return (
     <View>
@@ -131,34 +133,12 @@ export default function Home() {
         data={transactions}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <TransactionItem item={item} onDelete={handleDelete} />
+          <TransactionItem item={item} />
         )}
         ListEmptyComponent={<EmptyTransaction/>}
         showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       />
-
-      {/* <SignedIn>
-        <Text>Hello {user?.emailAddresses[0].emailAddress}</Text>
-        <Text>Balance: {summary.balance}</Text>
-        <Text>Income: {summary.income}</Text>
-        <Text>Expenses: {summary.expenses}</Text>
-        <Text>Username: {user.id}</Text>
-        <Text>First Name: {user?.firstName}</Text>
-        <Text>Last Name: {user?.lastName}</Text>
-        <SignOutButton />
-
-      </SignedIn>
-      <SignedOut>
-        <Link href="/(auth)/sign-in">
-          <Text>Sign in</Text>
-        </Link>
-        <Link href="/(auth)/sign-up">
-          <Text>Sign up</Text>
-        </Link>
-        <Link href="/index">
-          <Text>Sign up</Text>
-        </Link>
-      </SignedOut> */}
     </View>
   );
 }
