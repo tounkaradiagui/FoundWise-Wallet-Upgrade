@@ -7,6 +7,15 @@
     "preview": {
       "developmentClient": true,
       "distribution": "internal"
+    },
+    "development": {
+      "distribution": "internal"
+    },
+    "production": {
+      "autoIncrement": true
     }
+  },
+  "submit": {
+    "production": {}
   }
 }
