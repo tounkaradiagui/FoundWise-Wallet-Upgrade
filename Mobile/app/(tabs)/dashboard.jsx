@@ -78,7 +78,9 @@ export default function Home() {
             onPress={() => router.push("/profile")}
           >
             <Image
-              source={require("../../assets/images/profile-picture.jpg")}
+              source={{
+              uri: user?.imageUrl || "",
+            }}
               style={styles.avatar}
             />
             {/* <FontAwesome6 name="user-tie" size={30} color="#078ECB" /> */}
@@ -241,9 +243,9 @@ const styles = StyleSheet.create({
   },
 
   avatar: {
-    width: 50,
-    height: 55,
-    borderRadius: 20,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     borderWidth: 1,
     borderColor: "#078ECB",
   },
