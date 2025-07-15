@@ -1,0 +1,1 @@
+export const API_URL="https://foundwise-wallet-upgrade-1.onrender.com/api"

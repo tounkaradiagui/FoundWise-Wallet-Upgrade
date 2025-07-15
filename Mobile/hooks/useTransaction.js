@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
-import { Alert } from "react-native";
+import Toast from "react-native-toast-message";
+
 
 const API_URL = "https://foundwise-wallet-upgrade-1.onrender.com/api";
 // const API_URL = "http://localhost:5001/api";
@@ -19,8 +20,13 @@ export const useTransaction = (userId) => {
             const data = await response.json();
             setTransactions(data);
         } catch (error) {
-            console.log("Error fetching transactions:", error);
-            
+            Toast.show({
+                text1: "Erreur",
+                text2: "Erreur de chargement de la liste de transaction",
+                type: "error",
+                position: "top",
+                visibilityTime: 3000,
+            });
         }
     }, [userId]);
 
@@ -30,18 +36,29 @@ export const useTransaction = (userId) => {
             const data = await response.json();
             setSummary(data);
         } catch (error) {
-            console.log("Error fetching summary:", error);
-            
+            Toast.show({
+                text1: "Erreur",
+                text2: "Erreur de chargement du solde total",
+                type: "error",
+                position: "top",
+                visibilityTime: 3000,
+            });
         }
     }, [userId]);
 
     const loadData = useCallback(async () => {
-        if(!userId) return;
+        if (!userId) return;
         setLoading(true);
         try {
             await Promise.all([fetchTransactions(), fetchSummary()]);
         } catch (error) {
-            console.log("Error fetching summary:", error);
+            Toast.show({
+                text1: "Erreur",
+                text2: "Erreur de chargement",
+                type: "error",
+                position: "top",
+                visibilityTime: 3000,
+            });
         } finally {
             setLoading(false);
         }
@@ -56,11 +73,21 @@ export const useTransaction = (userId) => {
                 throw new Error("Failed to delete transaction");
             }
             loadData(); // Refresh data after deletion
-            console.log("Transaction deleted successfully");
-            Alert.alert("Transaction deleted successfully");
+            Toast.show({
+                text1: "Félicitations !!",
+                text2: "La transaction a été supprimée.",
+                type: "success",
+                position: "top",
+                visibilityTime: 3000,
+            });
         } catch (error) {
-            console.log("Error deleting transaction:", error);
-            Alert.alert("Error deleting transaction", error.message);          
+            Toast.show({
+                text1: "Erreur",
+                text2: "Erreur de suppression.",
+                type: "error",
+                position: "top",
+                visibilityTime: 3000,
+            });
         }
     };
 

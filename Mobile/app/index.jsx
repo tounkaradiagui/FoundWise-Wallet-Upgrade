@@ -18,7 +18,6 @@ import { useAuth, useUser } from "@clerk/clerk-expo";
 const { width: windowWidth } = Dimensions.get("window");
 
 export default function WelcomeScreen() {
-  const navigation = useNavigation();
   const swiperRef = useRef(null); // Référence pour le swiper
 
   const { isSignedIn } = useAuth();
@@ -71,7 +70,6 @@ export default function WelcomeScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar backgroundColor="#078ECB" color="#fff" />
       <View style={{ alignItems: "flex-end", marginTop: 40, marginEnd: 10 }}>
         <Link href={"/sign-in"}>
           <Text style={{ fontSize: 15, fontWeight: "bold", color: "#078ECB" }}>
@@ -112,6 +110,7 @@ export default function WelcomeScreen() {
           </View>
         </TouchableOpacity>
       </View>
+       <StatusBar backgroundColor="#078ECB" color="#fff" />
     </View>
   );
 }

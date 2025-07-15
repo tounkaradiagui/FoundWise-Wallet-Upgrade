@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   View,
   Text,
@@ -19,17 +19,23 @@ export default function EditProfile() {
 
   const [firstName, setFirstName] = useState(user?.firstName || "");
   const [lastName, setLastName] = useState(user?.lastName || "");
-  const [email, setEmail] = useState(user?.primaryEmailAddress?.emailAddress || "");
+  const [email, setEmail] = useState(
+    user?.primaryEmailAddress?.emailAddress || ""
+  );
   const [avatar, setAvatar] = useState(user?.imageUrl || "");
 
   const router = useRouter();
 
   // 📸 Fonction pour sélectionner une image locale
   const pickImage = async () => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (!permissionResult.granted) {
-      return Alert.alert("Permission refusée", "Accès requis pour choisir une image.");
+      return Alert.alert(
+        "Permission refusée",
+        "Accès requis pour choisir une image."
+      );
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -61,12 +67,18 @@ export default function EditProfile() {
         text1: "Succès",
         text2: "Profil mis à jour !",
       });
-      
+
       // Return back to profile page
       router.back();
     } catch (error) {
-      Alert.alert("Erreur", "Échec de la mise à jour.");
-      console.error("Update profile error:", error);
+      Toast.show({
+        text1: "Erreur",
+        text2: "Échec de la mise à jour",
+        type: "error",
+        position: "top",
+        visibilityTime: 3000,
+      });
+      // console.log("Update profile error:", error);
     }
   };
 

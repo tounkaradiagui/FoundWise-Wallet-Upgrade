@@ -18,26 +18,7 @@ const Profile = () => {
   const { user } = useUser();
   const { signOut } = useAuth();
   const router = useRouter();
-
-
-  const formatDate = (isoDate) => {
-    if (!isoDate) return "Indisponible";
-
-    const date = new Date(isoDate);
-    if (isNaN(date.getTime())) return "Indisponible";
-
-    const formatted = date.toLocaleDateString("fr-FR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
-
-    const hours = date.getHours().toString().padStart(2, "0");
-    const minutes = date.getMinutes().toString().padStart(2, "0");
-
-    return `${formatted} à ${hours}:${minutes}`;
-  };
-
+  
   const handleLogout = () => {
     Alert.alert(
       "Déconnexion",
@@ -139,7 +120,7 @@ const Profile = () => {
           <MaterialIcons name="keyboard-arrow-right" size={24} color="#999" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.option}>
+        <TouchableOpacity style={styles.option} onPress={() => router.push('/(profile)/about')}>
           <MaterialIcons
             name="help"
             size={22}

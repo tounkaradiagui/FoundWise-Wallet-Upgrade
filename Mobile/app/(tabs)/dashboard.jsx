@@ -4,6 +4,7 @@ import {
   FlatList,
   Image,
   RefreshControl,
+  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -23,14 +24,14 @@ export default function Home() {
 
   const [refreshing, setRefreshing] = useState(false);
 
-  const onRefresh = useCallback( async() => {
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await loadData()
+    await loadData();
     setTimeout(() => {
       setRefreshing(false);
     }, 2000);
   }, []);
-  
+
   const router = useRouter();
 
   // Fonction pour obtenir la salutation selon le moment de la journée
@@ -45,23 +46,14 @@ export default function Home() {
     }
   };
 
-  // const handleDelete = (id) => {
-  //   console.log("Delete transaction with id:", id);
-  // };
-
   useEffect(() => {
     loadData();
   }, [loadData]);
 
-  // console.log("Transactions:", transactions);
-  // console.log("Summary:", summary);
-
-  // console.log("User ID:", user?.id);
- 
-  if(loading && !refreshing) return <Loader />;
+  if (loading && !refreshing) return <Loader />;
 
   return (
-    <View>
+    <SafeAreaView style={{ flex: 1 }}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
@@ -69,8 +61,6 @@ export default function Home() {
           <Text style={styles.name}>
             {user.firstName} {user.lastName} !
           </Text>
-          {/* username */}
-          {/* <Text style={styles.name}>{user?.emailAddresses[0]?.emailAddress.split("@")[0]}</Text> */}
         </View>
         <View>
           <TouchableOpacity
@@ -79,11 +69,10 @@ export default function Home() {
           >
             <Image
               source={{
-              uri: user?.imageUrl || "",
-            }}
+                uri: user?.imageUrl || "",
+              }}
               style={styles.avatar}
             />
-            {/* <FontAwesome6 name="user-tie" size={30} color="#078ECB" /> */}
           </TouchableOpacity>
         </View>
       </View>
@@ -132,16 +121,17 @@ export default function Home() {
       </View>
 
       <FlatList
-        data={transactions}
+        data={[...transactions].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TransactionItem item={item} />
-        )}
-        ListEmptyComponent={<EmptyTransaction/>}
+        renderItem={({ item }) => <TransactionItem item={item} />}
+        ListEmptyComponent={<EmptyTransaction />}
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        contentContainerStyle={{ paddingBottom: 100 }}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -158,7 +148,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "flex-start",
     paddingHorizontal: 10,
-    marginTop: 15,
+    marginTop: 0,
   },
 
   salutation: {
@@ -243,9 +233,9 @@ const styles = StyleSheet.create({
   },
 
   avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     borderWidth: 1,
     borderColor: "#078ECB",
   },

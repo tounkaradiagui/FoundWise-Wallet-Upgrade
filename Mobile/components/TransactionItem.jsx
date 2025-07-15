@@ -1,14 +1,12 @@
-// components/TransactionItem.js
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import { View, Text, StyleSheet } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const categoryIcons = {
-  "Food & Drinks": "fast-food",
+  "Food & Drinks": "food",
   Income: "cash",
   Shopping: "cart",
   Transportation: "car",
-  Entertainment: "film",
+  Entertainment: "movie",
   Bills: "receipt",
   Other: "dots-horizontal",
 };
