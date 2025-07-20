@@ -19,7 +19,7 @@ import EmptyTransaction from "@/components/EmptyTransaction";
 
 export default function Home() {
   const { user } = useUser();
-  const { transactions, summary, loading, loadData, deleteTransaction } =
+  const { transactions, summary, loading, loadData } =
     useTransaction(user.id);
 
   const [refreshing, setRefreshing] = useState(false);
@@ -31,6 +31,11 @@ export default function Home() {
       setRefreshing(false);
     }, 2000);
   }, []);
+
+  const sortedTransactions = Array.isArray(transactions)
+  ? [...transactions].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+  : [];
+
 
   const router = useRouter();
 
@@ -121,7 +126,7 @@ export default function Home() {
       </View>
 
       <FlatList
-        data={[...transactions].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))}
+        data={sortedTransactions}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <TransactionItem item={item} />}
         ListEmptyComponent={<EmptyTransaction />}

@@ -70,6 +70,7 @@ export default function WelcomeScreen() {
 
   return (
     <View style={styles.container}>
+      <StatusBar backgroundColor="#078ECB" color="#fff" />
       <View style={{ alignItems: "flex-end", marginTop: 40, marginEnd: 10 }}>
         <Link href={"/sign-in"}>
           <Text style={{ fontSize: 15, fontWeight: "bold", color: "#078ECB" }}>
@@ -110,7 +111,6 @@ export default function WelcomeScreen() {
           </View>
         </TouchableOpacity>
       </View>
-       <StatusBar backgroundColor="#078ECB" color="#fff" />
     </View>
   );
 }

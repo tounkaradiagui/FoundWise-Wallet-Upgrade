@@ -29,6 +29,10 @@ export default function Transactions() {
     }, 2000);
   }, []);
 
+    const sortedTransactions = Array.isArray(transactions)
+  ? [...transactions].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+  : [];
+
   const handleDelete = (id) => {
     Alert.alert(
       "Supprimer la transaction",
@@ -75,9 +79,7 @@ export default function Transactions() {
       </View>
 
       <FlatList
-        data={[...transactions].sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        )}
+        data={sortedTransactions}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         ListEmptyComponent={<EmptyTransaction />}

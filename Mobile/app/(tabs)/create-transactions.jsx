@@ -122,7 +122,7 @@ export default function CreateTransaction() {
     }
   };
 
-   const isFormValid = title.length > 3 && amount.length > 3;
+   const isFormValid = title.length > 1 && amount.length > 1;
 
   return (
     <KeyboardAvoidingView
@@ -130,7 +130,7 @@ export default function CreateTransaction() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Nouvelle Transaction</Text>
